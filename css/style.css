@@ -1,0 +1,90 @@
+body {
+    background-color: #111;
+    color: whitesmoke;
+    font-family: Fira Mono, monospace;
+
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    
+    background-image: linear-gradient( #222, transparent .1em), linear-gradient(90deg, #222, transparent .1em);
+    background-size: 4em 4em;
+}
+
+/*//////////////////////////*/
+
+header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 140px;
+    padding: 0 40px;
+    background-color: transparent;
+}
+
+header a {
+    display: flex;
+    text-decoration: none;
+    color: inherit;
+}
+
+header strong {
+    font-size: large;
+}
+
+nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+nav a {
+    color: inherit;
+    text-decoration: none;
+    padding: 1rem;
+}
+
+nav a:hover {
+    color: rgba(255, 2555, 255, 0.5);
+}
+
+/*//////////////////////////*/
+
+section {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+section div {
+    text-align: center;
+    padding: 0;
+    margin: 0 auto;
+}
+
+section div strong {
+    text-decoration-line: underline;
+}
+
+/*//////////////////////////*/
+  
+.center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/*//////////////////////////*/
+
+footer {
+    position: absolute;
+    text-align: center;
+    bottom: 0;
+    width:100%;
+}

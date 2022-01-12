@@ -1,0 +1,54 @@
+body {
+  background-color: lightgrey;
+  margin: 0;
+}
+
+h1 {
+  text-align: center;
+  float: left;
+  width: 50%;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+a:hover {
+  color: grey;
+}
+
+#score-container {
+  text-align: center;
+  margin: 20px auto;
+}
+
+#snake-container {
+  background-color: whitesmoke;
+  text-align: center;
+  margin: 32px auto;
+  display: grid;
+  width: 590px;
+  grid-template-columns: repeat(12, 1fr);
+  height: 440px;
+  grid-template-rows: repeat(9, 1fr);
+  grid-gap: 10px;
+  outline: 2px solid black;
+}
+
+.snake {
+  background-color: green;
+  outline: 2px solid black;
+}
+
+.food {
+  background-color: darkred;
+  outline: 2px solid black;
+}
+
+footer {
+  position: absolute;
+  text-align: center;
+  bottom: 0;
+  width:100%;
+}
