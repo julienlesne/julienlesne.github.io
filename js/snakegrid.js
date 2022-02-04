@@ -41,6 +41,7 @@ function game() {
         gameOver = true;
     }
 
+    // EAT SNAKE
     for (let i = 1; i < snake.length; i++) {
         if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
             gameOver = true
@@ -88,16 +89,16 @@ function game() {
     foodElement.innerHTML = "F"
     
     // DRAW SNAKE
+    //i=0
     snake.forEach(part => {
         const snakePart = document.createElement('div')
         snakePart.style.gridRowStart = part.y
         snakePart.style.gridColumnStart = part.x
         snakePart.classList.add('snake')
         snakeContainer.appendChild(snakePart)
+        //snakePart.innerHTML = i++
         if (part === snake[0]) {
-            snakePart.innerHTML = "T_T"
-        } else {
-            snakePart.innerHTML = "S"
+            snakePart.innerHTML = "Y"
         }
     })
 
@@ -107,22 +108,22 @@ function game() {
 document.onkeydown = function (event) {
     switch (event.keyCode) {
         case 37:
-            console.log("Left");
+            //console.log("Left");
             if (lastDirection.x !== 0) break;
             direction = { x: -1, y: 0};
             break;
         case 38:
-            console.log("Up");
+            //console.log("Up");
             if (lastDirection.y !== 0) break;
             direction = { x: 0, y: -1};
             break;
         case 39:
-            console.log("Right");
+            //console.log("Right");
             if (lastDirection.x !== 0) break;
             direction = { x: 1, y: 0};
             break;
         case 40:
-            console.log("Down");
+            //console.log("Down");
             if (lastDirection.y !== 0) break;
             direction = { x: 0, y: 1};
             break;
