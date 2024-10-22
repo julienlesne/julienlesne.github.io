@@ -1,0 +1,38 @@
+body {
+    background-color: lightgrey;
+    margin: 0;
+}
+h1 {
+    text-align: center;
+    float: left;
+    width: 50%;
+}
+p {
+    width: 100%;
+    text-align: center;
+}
+canvas {
+    border: 1px solid black;
+    padding: 0;
+    margin: auto;
+    display: block;
+}
+canvas:hover {
+    cursor: pointer;
+}
+button:hover {
+    cursor: pointer;
+}
+#menu {
+    width: 100%;
+    text-align: center;
+}
+.right {
+    text-align: right;
+}
+footer {
+    position: absolute;
+    text-align: center;
+    bottom: 0;
+    width:100%;
+  }
