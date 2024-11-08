@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>QuadTree</title>
+    <title>QuadTree Visualization</title>
     <link rel="stylesheet" href="css/tree.css">
 </head>
 
 <body>
 
-    <h1>QuadTree</h1>
-    <h1 id="right"><a href="index.html">Retour</a></h1>
+    <h1>QuadTree Visualization</h1>
+    <h1 id="right"><a href="index.html">Back</a></h1>
 
     <hr>
 
@@ -19,11 +19,18 @@
 
     <div id="menu">
         <button id="reset">Reset</button>
-        <button id="add">Add Random</button>
-        <button id="balance">Add 50 Random</button>
+        <button id="add">Add Random Point</button>
+        <button id="balance">Add 50 Random Points</button>
+        <br><br>
+        <label>Custom Count:</label>
+        <input type="number" id="pointCount" value="10" min="1" max="200">
+        <button id="addCustom">Add Custom Random Points</button>
+        <br><br>
+        <label for="nodeCapacitySlider">Node Capacity: <span id="nodeCapacityDisplay">1</span></label>
+        <input type="range" id="nodeCapacitySlider" min="1" max="10" value="1">
     </div>
 
-    <p>Click on the canvas to add a point</p>
+    <p>Click on the canvas to add a point at the clicked location.</p>
 
     <footer>
         <hr>

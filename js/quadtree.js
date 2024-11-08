@@ -1,21 +1,36 @@
+const canvasSize = 600;
+const canvasCenter = canvasSize / 2;
+const textOffset = 10;
+const pointRadius = 3;
 
-const size = 600;
-zero = size/2;
-text_offset = 10;
-circle_size = 2;
+// Default QuadTree node capacity
+let NODE_CAPACITY = 1;
 
-const QT_NODE_CAPACITY = 1;
-
-const addButton = document.getElementById("add");
+// Canvas and context setup
 const canvas = document.getElementById("myCanvas");
-canvas.width = size;
-canvas.height = size;
+canvas.width = canvasSize;
+canvas.height = canvasSize;
 const ctx = canvas.getContext("2d");
-
 ctx.font = "12px Monospace";
 ctx.textAlign = "center";
 
+// Define UI controls
+const addButton = document.getElementById("add");
+const balanceButton = document.getElementById("balance");
+const resetButton = document.getElementById("reset");
+const customButton = document.getElementById("addCustom");
+const pointCountInput = document.getElementById("pointCount");
+const nodeCapacitySlider = document.getElementById("nodeCapacitySlider");
+const nodeCapacityDisplay = document.getElementById("nodeCapacityDisplay");
 
+// Update the displayed node capacity value
+nodeCapacitySlider.oninput = () => {
+    NODE_CAPACITY = parseInt(nodeCapacitySlider.value);
+    nodeCapacityDisplay.textContent = NODE_CAPACITY;
+    updateQuadTree(); // Update the QuadTree to apply the new capacity
+};
+
+// Point class representing a 2D point
 class Point {
     constructor(x, y) {
         this.x = x;
@@ -23,178 +38,210 @@ class Point {
     }
 }
 
+// Axis-Aligned Bounding Box class to manage rectangular regions
 class AABB {
     constructor(origin, dimension) {
         this.origin = origin;
         this.dimension = dimension;
     }
 
+    // Check if a point is within the AABB
     contains(point) {
-        if (point.x < this.origin.x || point.x > this.origin.x + this.dimension) {
-            return false;
-        }
-
-        if (point.y < this.origin.y || point.y > this.origin.y + this.dimension) {
-            return false;
-        }
-
-        return true;
+        return (
+            point.x >= this.origin.x && point.x <= this.origin.x + this.dimension &&
+            point.y >= this.origin.y && point.y <= this.origin.y + this.dimension
+        );
     }
+}
+
+// QuadTree class to manage spatial data structure and operations
+class QuadTree {
+    constructor(boundary) {
+        this.boundary = boundary;
+        this.points = []; // Points in this region
+        this.subdivided = false; // Subdivision state
+
+        // Draw boundary
+        ctx.strokeStyle = "red";
+        ctx.strokeRect(this.boundary.origin.x, this.boundary.origin.y, this.boundary.dimension, this.boundary.dimension);
+    }
+
+    // Subdivide this QuadTree node into four quadrants
+    subdivide() {
+        const halfDim = this.boundary.dimension / 2;
+        const x = this.boundary.origin.x;
+        const y = this.boundary.origin.y;
+
+        this.northwest = new QuadTree(new AABB(new Point(x, y), halfDim));
+        this.northeast = new QuadTree(new AABB(new Point(x + halfDim, y), halfDim));
+        this.southwest = new QuadTree(new AABB(new Point(x, y + halfDim), halfDim));
+        this.southeast = new QuadTree(new AABB(new Point(x + halfDim, y + halfDim), halfDim));
+
+        this.subdivided = true;
+    }
+
+    // Insert a point into the QuadTree
+    insert(point) {
+        // Ignore points outside the boundary
+        if (!this.boundary.contains(point)) {
+            return false;
+        }
+
+        // If capacity is not reached, add the point here
+        if (this.points.length < NODE_CAPACITY && !this.subdivided) {
+            this.points.push(point);
+            this.drawPoint(point, "black", "green"); // Visualize point with coordinates
+            return true;
+        }
+
+        // If capacity is reached and not yet subdivided, subdivide this node
+        if (!this.subdivided) {
+            this.subdivide();
+            // Re-insert points into appropriate quadrants after subdivision
+            this.points.forEach(p => {
+                this.northwest.insert(p) || this.northeast.insert(p) || this.southwest.insert(p) || this.southeast.insert(p);
+            });
+            this.points = [];
+        }
+
+        // Attempt to insert into one of the quadrants
+        return (
+            this.northwest.insert(point) || this.northeast.insert(point) ||
+            this.southwest.insert(point) || this.southeast.insert(point)
+        );
+    }
+
+    // Search for nearest point
+    nearestNeighbor(target, best = { point: null, distance: Infinity }) {
+        this.points.forEach(p => {
+            const d = distance(target, p);
+            if (d < best.distance) {
+                best.point = p;
+                best.distance = d;
+            }
+        });
+
+        if (this.subdivided) {
+            this.northwest.nearestNeighbor(target, best);
+            this.northeast.nearestNeighbor(target, best);
+            this.southwest.nearestNeighbor(target, best);
+            this.southeast.nearestNeighbor(target, best);
+        }
+
+        return best.point;
+    }
+
+    // Draw a point on the canvas with optional text for coordinates
+    drawPoint(point, pointColor, textColor) {
+        ctx.beginPath();
+        ctx.fillStyle = pointColor;
+        ctx.arc(point.x, point.y, pointRadius, 0, 2 * Math.PI);
+        ctx.fill();
+
+        // Display rounded coordinates next to the point
+        ctx.fillStyle = textColor;
+        const roundedX = Math.round(point.x - canvasCenter);
+        const roundedY = Math.round(-(point.y - canvasCenter));
+        ctx.fillText(`(${roundedX}, ${roundedY})`, point.x, point.y - textOffset);
+    }
+}
+
+// Initialize the QuadTree with the canvas boundary
+let quadTree = new QuadTree(new AABB(new Point(0, 0), canvasSize));
+
+// Add single random point
+addButton.onclick = () => addRandomPoint();
+
+// Add 50 random points
+balanceButton.onclick = () => generateRandomPoints(50);
+
+// Add custom number of random points based on user input
+customButton.onclick = () => generateRandomPoints(parseInt(pointCountInput.value) || 10);
+
+// Reset QuadTree and clear canvas
+resetButton.onclick = () => resetCanvas();
+
+// Add a point at mouse click location
+canvas.onclick = (event) => {
+    const pos = getMousePos(canvas, event);
+    const clickedPoint  = new Point(pos.x, pos.y);
+    quadTree.insert(clickedPoint ) || alert("clickedPoint outside boundary");
 
     /*
-    intersects(other) {
-        var self = this;
-        if (self.center.x + self.halfDimension > other.center.x - other.halfDimension) {
-            return true;
-        }
+    const nearest = quadTree.nearestNeighbor(clickedPoint);
 
-        if (self.center.x - self.halfDimension < other.center.x + other.halfDimension) {
-            return true;
-        }
+    if (nearest) {
+        ctx.beginPath();
+        ctx.fillStyle = "blue";
+        ctx.arc(nearest.x, nearest.y, pointRadius, 0, 2 * Math.PI);
+        ctx.fill();
 
-        if (self.center.y + self.halfDimension > other.center.y - other.halfDimension) {
-            return true;
-        }
-
-        if (self.center.y - self.halfDimension < other.center.y + other.halfDimension) {
-            return true;
-        }
-        return false;
-    }
-        */
-}
-
-class QuadTree {
-    constructor(boundry) {
-        this.boundry = boundry;
-
-        ctx.strokeStyle = "red";
-        ctx.strokeRect(this.boundry.origin.x,
-                       this.boundry.origin.y,
-                       this.boundry.dimension,this.boundry.dimension);
-
-        this.points = [];
-
-        this.NW = null;
-        this.NE = null;
-        this.SE = null;
-        this.SW = null;
-    }
-
-    subdivide() {
-        var halfDim = this.boundry.dimension / 2;
-
-        this.NW = new QuadTree(new AABB(new Point(this.boundry.origin.x,
-                                                  this.boundry.origin.y), halfDim))
-        this.NE = new QuadTree(new AABB(new Point(this.boundry.origin.x + halfDim,
-                                                  this.boundry.origin.y), halfDim))
-        this.SW = new QuadTree(new AABB(new Point(this.boundry.origin.x,
-                                                  this.boundry.origin.y + halfDim), halfDim))
-        this.SE = new QuadTree(new AABB(new Point(this.boundry.origin.x + halfDim,
-                                                  this.boundry.origin.y + halfDim), halfDim))
-    }
-
-    insert(point) {
-        if (!this.boundry.contains(point)) {
-            return false;
-        }
-
-        if (this.points.length < QT_NODE_CAPACITY && this.NW == null) {
-            this.points.push(point);
-
+        // Wait 1 sec before cleaning
+        setTimeout(() => {
             ctx.beginPath();
             ctx.fillStyle = "black";
-            ctx.arc(point.x, point.y, circle_size, 0, 2 * Math.PI);
+            ctx.arc(nearest.x, nearest.y, pointRadius, 0, 2 * Math.PI);
             ctx.fill();
-       
-            ctx.fillStyle = "green";
-            ctx.fillText('(' + (point.x-zero) + ', ' + (-(point.y-zero)) + ')',
-                point.x, point.y - text_offset);
-            return true;
-        }
-
-        if (this.NW == null) {
-            console.log("subdividing...");
-            this.subdivide();
-
-            // Redistribuer les points existants dans les sous-arbres
-            this.points.forEach(p => {
-                this.NW.insert(p) || this.NE.insert(p) || this.SW.insert(p) || this.SE.insert(p);
-            });
-            this.points = []; // Effacer les points du nœud parent
-        }
-
-        if (this.NW.insert(point)) {
-            console.log("NW insert");
-            return true;
-        }
-        if (this.NE.insert(point)) {
-            console.log("NE insert");
-            return true;
-        }
-        if (this.SW.insert(point)) {
-            console.log("SW insert");
-            return true;
-        }
-        if (this.SE.insert(point)) {
-            console.log("SE insert");
-            return true;
-        }
-        return false;
+        }, 1000);
     }
-}
-
-var qt = new QuadTree(new AABB(new Point(0, 0), size));
-
-addButton.onclick = function(){
-    console.log("add");
-
-    var point_x = Math.floor(Math.random() * size);
-    var point_y = Math.floor(Math.random() * size);
-    console.log('(' + point_x + ', ' + point_y + ')');
-
-    if (!qt.insert(new Point(point_x, point_y))) {
-        alert("Point outside boundry");
-    } else {
-        console.log("Point inserted");
-    }
+    */
 };
 
-function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
+// Utility: Add a random point within the canvas
+function addRandomPoint() {
+    const x = Math.floor(Math.random() * canvasSize);
+    const y = Math.floor(Math.random() * canvasSize);
+    quadTree.insert(new Point(x, y));
 }
 
-canvas.onclick = function(evt){
-    console.log("canvas click");
-    var pos = getMousePos(canvas, evt);
-    var point_x = Math.floor(pos.x);
-    var point_y = Math.floor(pos.y);
-    console.log('(' + point_x + ', ' + point_y + ')');
-    if (!qt.insert(new Point(point_x, point_y))) {
-        alert("Point outside boundry");
-    } else {
-        console.log("Point inserted");
-    }
-}
-
+// Utility: Generate multiple random points
 function generateRandomPoints(numPoints) {
     for (let i = 0; i < numPoints; i++) {
-        let point_x = Math.floor(Math.random() * size);
-        let point_y = Math.floor(Math.random() * size);
-        qt.insert(new Point(point_x, point_y));
+        addRandomPoint();
     }
 }
 
-document.getElementById("balance").onclick = function () {
-    generateRandomPoints(50);
+// Utility: Get mouse position relative to the canvas
+function getMousePos(canvas, evt) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
 }
 
-const resetButton = document.getElementById("reset");
-resetButton.onclick = function () {
-    ctx.clearRect(0, 0, size, size);
-    qt = new QuadTree(new AABB(new Point(0, 0), size));
+
+// Utility: Calculate the Euclidean distance between two points
+function distance(p1, p2) {
+    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+}
+
+// Utility: Reset the canvas and reinitialize QuadTree
+function resetCanvas() {
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+    quadTree = new QuadTree(new AABB(new Point(0, 0), canvasSize));
+}
+
+// Utility: Collect all points from the current QuadTree structure
+function collectPoints(tree, points) {
+    points.push(...tree.points);
+    if (tree.subdivided) {
+        collectPoints(tree.northwest, points);
+        collectPoints(tree.northeast, points);
+        collectPoints(tree.southwest, points);
+        collectPoints(tree.southeast, points);
+    }
+}
+
+// Update the QuadTree with the new node capacity without clearing points
+function updateQuadTree() {
+    // Collect all points from the current QuadTree
+    const allPoints = [];
+    collectPoints(quadTree, allPoints);
+
+    // Clear canvas to remove visual elements without clearing the structure
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+    // Create a new QuadTree with the updated NODE_CAPACITY
+    quadTree = new QuadTree(new AABB(new Point(0, 0), canvasSize));
+
+    // Re-insert all points to apply the new NODE_CAPACITY
+    allPoints.forEach(point => quadTree.insert(point));
 }
