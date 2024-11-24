@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visualization</title>
+    <link rel="stylesheet" href="css/tree.css">
+</head>
+
+<body>
+
+    <h1>Visualization</h1>
+    <h1 id="right"><a href="index.html">Back</a></h1>
+
+    <hr>
+
+    <canvas id="myCanvas"></canvas>
+
+    <div id="menu">
+        <button id="reset">Reset</button>
+        <button id="add">Add Random Point</button>
+        <button id="balance">Add 50 Random Points</button>
+        <br><br>
+        <label>Custom Count:</label>
+        <input type="number" id="pointCount" value="10" min="1" max="200">
+        <button id="addCustom">Add Custom Random Points</button>
+        <br><br>
+        <button id="toggleDistance">toggleDistance:
+            <span id="distanceType">Euclidean</span>
+        </button>
+        <br><br>
+        <label for="nbVoisinsSlider">Node Capacity: <span id="nbVoisinsDisplay">1</span></label>
+        <input type="range" id="nbVoisinsSlider" min="1" max="10" value="1">
+    </div>
+
+    <p>Click on the canvas to add a point at the clicked location.</p>
+
+    <footer>
+        <hr>
+        <p>© 2024 Julien Lesné</p>
+    </footer>
+    
+    <script type="text/javascript" src="js/graph.js"></script>
+</body>
+
+</html>

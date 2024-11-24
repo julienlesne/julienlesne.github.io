@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sorting Visualization</title>
+    <link rel="stylesheet" href="css/tree.css">
+</head>
+
+<body>
+
+    <h1>Sorting Visualization</h1>
+    <h1 id="right"><a href="index.html">Back</a></h1>
+
+    <hr>
+
+    <canvas id="myCanvas"></canvas>
+
+    <div id="menu">
+        <button id="bubbleSort">Bubble Sort</button>
+        <button id="selectionSort">Selection Sort</button>
+        <button id="cocktailSort">Cocktail Sort</button>
+        <button id="bogoSort">Bogo Sort</button>
+        <br><br>
+        <label for="sortingSpeedSlider">Sorting Speed: <span id="sortingSpeedDisplay">50</span></label>
+        <input type="range" id="sortingSpeedSlider" min="1" max="200" value="50">
+        <br><br>
+        <button id="reset">Reset</button>
+    </div>
+
+    <footer>
+        <hr>
+        <p>© 2024 Julien Lesné</p>
+    </footer>
+    
+    <script type="text/javascript" src="js/sort.js"></script>
+</body>
+
+</html>
